@@ -101,3 +101,22 @@ docker pull ubuntu
 and this should be working now.
 
 [Let me know](https://github.com/pahud/gost-docker/issues) if you have more working examples.
+
+
+## AWS UserData example for Amazon Linux
+
+This User Data script will install docker and bring up gost-docker with EIP association.
+
+```
+#!/bin/bash
+
+region='ap-northeast-2'
+iid=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+aid='eipalloc-xxxxxxxx'
+password='xxxxxxxx'
+
+aws ec2 associate-address --allocation-id $aid --instance-id $iid --region $region
+
+sudo yum update -y && sudo yum install -y docker && sudo service docker start && \
+docker run --restart=always -d -p 443:443  pahud/gost-docker gost -logtostderr -v 4 -L=ss://aes-256-cfb:$password@:443
+```
